@@ -104,10 +104,19 @@ scene.add(planetGroup);
 planetGroup.position.z = -0.1;
 
 const sectorAngle = 2 * Math.PI / 53; // The angle of each sector
+const sectorRadiuses = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // The radiuses of the sectors
 
 for (let i = 0; i < 53; i++) {
-  const innerRadius = 1 + Math.random() * 17;
-  const outerRadius = innerRadius + Math.random() * (20 - innerRadius);
+  const innerIndex = Math.floor(Math.random() * sectorRadiuses.length);
+  const innerRadius = sectorRadiuses[innerIndex];
+
+  const temp = sectorRadiuses.splice(innerIndex, 1)[0];
+
+  const outerIndex = Math.floor(Math.random() * sectorRadiuses.length);
+  const outerRadius = sectorRadiuses[outerIndex];
+
+  sectorRadiuses.splice(innerIndex, 0, temp);
+
   const sector = createSector(sectorAngle, innerRadius, outerRadius);
   sector.rotation.z = i * sectorAngle;
   scene.add(sector);
