@@ -3,10 +3,19 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import TWEEN from '@tweenjs/tween.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { createGUIPosRotFolder} from './utils/gui.js';
+import { createSector } from './utils/sectors.js';
 import spaceHoloText from '/images/spaceBlue2.jpg';
 import earhText from '/images/earth.jpg';
 
 /*TODO: 
+  - create sectors for the holo map (there seem to be 10 circle radiuses from the center to the edge of the holo map)
+    * liberation info of sector and number of players
+    * actual planet location from ingame
+  - create mouse controls like ingame
+    * first a zoom in is required for planet selection
+    * the mouse moves a circle around with wich you can select planets
+  - create a holographic shader material for the holo map
+    * the hologram has a slight beehive pattern
   - create UI Hover effect for the planets
     * simple UI planet with name and liberation info  
     * advanced UI planel with planet picture and info
@@ -15,10 +24,6 @@ import earhText from '/images/earth.jpg';
     * close up to planet click
     * zoom out to the holo map
   - ingame textures of planets
-  - create sectors for the holo map
-    * liberation info of sector and number of players
-    * actual planet location from ingame
-  - create a holographic shader material for the holo map
 */
 
 const width = window.innerWidth, height = window.innerHeight;
@@ -49,7 +54,6 @@ const light = new THREE.PointLight(0xffffff, 70, 2000);
 const lightHelper = new THREE.PointLightHelper(light);
 light.position.set(0, 0, -5);
 scene.add(light);
-scene.add(lightHelper);
 
 const geometry = new THREE.CircleGeometry( 20, 50 ); 
 const material = new THREE.MeshPhongMaterial( { color: 0x0000ff, side: THREE.DoubleSide,map: holoMapTexture} );
@@ -97,6 +101,19 @@ for (let i = 0; i < 253; i++) {
 scene.add(planetGroup);
 planetGroup.position.z = -0.1;
 // planetGroup.rotation.x = -2;
+
+const sectorAngle = 2 * Math.PI / 53; // The angle of each sector
+// const innerRadius = 10; // The inner radius of the sector
+// const outerRadius = 20; // The outer radius of the sector
+
+for (let i = 0; i < 53; i++) {
+  const innerRadius = 1 + Math.random() * 17;
+  const outerRadius = innerRadius + Math.random() * (20 - innerRadius);
+  const sector = createSector(sectorAngle, innerRadius, outerRadius);
+  sector.rotation.z = i * sectorAngle;
+  scene.add(sector);
+  sector.position.z = -0.1;
+}
 
 renderer.setAnimationLoop( animation );
 document.body.appendChild( renderer.domElement );
