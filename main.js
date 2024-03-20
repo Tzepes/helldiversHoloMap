@@ -57,13 +57,15 @@ scene.add(light);
 
 const geometry = new THREE.CircleGeometry( 20, 50 ); 
 const material = new THREE.MeshPhongMaterial( { color: 0x0000ff, side: THREE.DoubleSide,map: holoMapTexture} );
+
 const holoMapShaderMaterial = new THREE.ShaderMaterial();
+
 material.transparent = true;
 material.opacity = 0.9;
 material.shininess = 0;
+
 const circle = new THREE.Mesh( geometry, material ); 
 scene.add( circle );
-// circle.rotation.x = -2;
 createGUIPosRotFolder(circle, 'HoloProj');
 
 const sphereGeometry = new THREE.SphereGeometry( 1, 32, 32 );
@@ -100,11 +102,8 @@ for (let i = 0; i < 253; i++) {
 
 scene.add(planetGroup);
 planetGroup.position.z = -0.1;
-// planetGroup.rotation.x = -2;
 
 const sectorAngle = 2 * Math.PI / 53; // The angle of each sector
-// const innerRadius = 10; // The inner radius of the sector
-// const outerRadius = 20; // The outer radius of the sector
 
 for (let i = 0; i < 53; i++) {
   const innerRadius = 1 + Math.random() * 17;
@@ -122,7 +121,6 @@ document.body.appendChild( renderer.domElement );
 
 const raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
-let divPlanetInfo = null;
 
 window.addEventListener('mousemove', (event) => {
   mouse.x = event.clientX / window.innerWidth * 2 - 1;
@@ -141,8 +139,6 @@ function onWindowResize() {
 const clock = new THREE.Clock();
 
 function animation( time ) {
-  const elapsedTime = clock.getElapsedTime();
-
   raycaster.setFromCamera(mouse, camera);
 
   const intersects = raycaster.intersectObjects(planetGroup.children);
