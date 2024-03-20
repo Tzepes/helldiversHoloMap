@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+}
+
+#planetSimpleHover {
+  display: flex;
+  width: 100%;
+  max-width: 20rem;
+  flex-direction: column;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(252 242 118 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(1 0 0 / var(--tw-bg-opacity));
+  --tw-text-opacity: 1;
+  color: rgb(251 250 245 / var(--tw-text-opacity));
+}
