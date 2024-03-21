@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export function createSector(sectorAngle, innerRadius, outerRadius) {
+export function createSector(sectorAngle, innerRadius, outerRadius, numPoints = 4, sectorPoints) {
     const shape = new THREE.Shape();
     shape.moveTo(innerRadius, 0);
     shape.absarc(0, 0, innerRadius, 0, sectorAngle, false);
@@ -19,7 +19,6 @@ export function createSector(sectorAngle, innerRadius, outerRadius) {
     const border = new THREE.LineLoop(borderGeometry, borderMaterial);
 
     const sectorGroup = new THREE.Group();
-    
     sectorGroup.add(sector);
     sectorGroup.add(border);
 

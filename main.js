@@ -6,6 +6,7 @@ import { createGUIPosRotFolder} from './utils/gui.js';
 import { createSector } from './utils/sectors.js';
 import spaceHoloText from '/images/spaceBlue2.jpg';
 import earhText from '/images/earth.jpg';
+import {GUI} from 'dat.gui';
 
 /*TODO: 
   - create sectors for the holo map (there seem to be 10 circle radiuses from the center to the edge of the holo map)
@@ -29,7 +30,6 @@ import earhText from '/images/earth.jpg';
 const width = window.innerWidth, height = window.innerHeight;
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 renderer.setSize( width, height );
-
 
 const loader = new THREE.TextureLoader();
 const holoMapTexture = loader.load(spaceHoloText);
@@ -103,24 +103,31 @@ for (let i = 0; i < 253; i++) {
 scene.add(planetGroup);
 planetGroup.position.z = -0.1;
 
-const sectorAngle = 2 * Math.PI / 53; // The angle of each sector
 const sectorRadiuses = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // The radiuses of the sectors
+const sectorsPerGroup = [6, 8, 10, 12, 14, 18]; // Increase the number of sectors in the outer groups
+let sectorIndex = 0; // The current sector index
 
-for (let i = 0; i < 53; i++) {
-  const innerIndex = Math.floor(Math.random() * sectorRadiuses.length);
-  const innerRadius = sectorRadiuses[innerIndex];
+for (let i = 0; i < sectorsPerGroup.length; i+=2) {
+    const innerRadius = sectorRadiuses[i];
+    const outerRadius = sectorRadiuses[i + 6] || 20; // Default to 20 if there is no next radius
+    const sectorsInGroup = sectorsPerGroup[i];
 
-  const temp = sectorRadiuses.splice(innerIndex, 1)[0];
+    for (let j = 0; j < sectorsInGroup; j++) {
+        const sectorAngle = 2 * Math.PI / sectorsInGroup;
+        const sector = createSector(sectorAngle, innerRadius, outerRadius);
+        sector.rotation.z = j * sectorAngle;
+        scene.add(sector);
+        sector.position.z = -0.1;
+        sectorIndex++;
 
-  const outerIndex = Math.floor(Math.random() * sectorRadiuses.length);
-  const outerRadius = sectorRadiuses[outerIndex];
+        if (sectorIndex >= 53) {
+            break;
+        }
+    }
 
-  sectorRadiuses.splice(innerIndex, 0, temp);
-
-  const sector = createSector(sectorAngle, innerRadius, outerRadius);
-  sector.rotation.z = i * sectorAngle;
-  scene.add(sector);
-  sector.position.z = -0.1;
+    if (sectorIndex >= 53) {
+        break;
+    }
 }
 
 renderer.setAnimationLoop( animation );
