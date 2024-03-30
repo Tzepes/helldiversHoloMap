@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+fragment-copy.glsl
+vertex-copy.glsl
