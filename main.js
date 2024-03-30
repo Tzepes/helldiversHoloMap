@@ -7,6 +7,8 @@ import { createSector } from './utils/sectors.js';
 import spaceHoloText from '/images/spaceBlue2.jpg';
 import earhText from '/images/earth.jpg';
 import {GUI} from 'dat.gui';
+import holographicVertexShader from './shaders/holographic/vertex.glsl';
+import holographicFragmentShader from './shaders/holographic/fragment.glsl';
 
 /*TODO: 
   - create sectors for the holo map (there seem to be 10 circle radiuses from the center to the edge of the holo map)
@@ -58,13 +60,22 @@ scene.add(light);
 const geometry = new THREE.CircleGeometry( 20, 50 ); 
 const material = new THREE.MeshPhongMaterial( { color: 0x0000ff, side: THREE.DoubleSide,map: holoMapTexture} );
 
-const holoMapShaderMaterial = new THREE.ShaderMaterial();
+const holoMapShaderMaterial = new THREE.ShaderMaterial({
+  vertexShader: holographicVertexShader,
+  fragmentShader: holographicFragmentShader,
+  uniforms: {
+    uTime: new THREE.Uniform(0),
+  },
+  transparent: true
+});
+console.log(holoMapShaderMaterial);
 
 material.transparent = true;
 material.opacity = 0.9;
 material.shininess = 0;
 
-const circle = new THREE.Mesh( geometry, material ); 
+const circle = new THREE.Mesh( geometry, holoMapShaderMaterial ); 
+circle.rotation.x = Math.PI;
 scene.add( circle );
 createGUIPosRotFolder(circle, 'HoloProj');
 
@@ -155,12 +166,15 @@ function onWindowResize() {
 const clock = new THREE.Clock();
 
 function animation( time ) {
+  // Update material
+  holoMapShaderMaterial.uniforms.uTime.value = time;
+
   raycaster.setFromCamera(mouse, camera);
 
   const intersects = raycaster.intersectObjects(planetGroup.children);
 
   for (const intersect of intersects) {
-    console.log(intersect);
+    // console.log(intersect);
   }
 
   stats.update()
