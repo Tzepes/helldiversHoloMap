@@ -1,4 +1,5 @@
 uniform float uTime;
+uniform vec3 uColor;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -16,12 +17,16 @@ void main() {
     float fresnel = dot(viewDirection, normal) + 1.0;
     fresnel = pow(fresnel, 2.0);
 
+    // Falloff
+    float falloff = smoothstep(0.4, 0.8, fresnel);
+    
     // Holograpgic effect
     float holographic = stripes * fresnel;
     holographic += fresnel * 1.25;
+    holographic += falloff;
 
     //final color
-    gl_FragColor = vec4(1.0, 1.0, 1.0, holographic);
+    gl_FragColor = vec4(uColor, holographic);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 

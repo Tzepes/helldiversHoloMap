@@ -65,6 +65,7 @@ const holoMapShaderMaterial = new THREE.ShaderMaterial({
   fragmentShader: holographicFragmentShader,
   uniforms: {
     uTime: new THREE.Uniform(0),
+    uColor: new THREE.Uniform(new THREE.Color('#7cc7fc'))
   },
   transparent: true
 });
