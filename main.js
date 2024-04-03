@@ -6,7 +6,7 @@ import { createGUIPosRotFolder} from './utils/gui.js';
 import { createSector } from './utils/sectors.js';
 import spaceHoloText from '/images/spaceBlue2.jpg';
 import earhText from '/images/earth.jpg';
-import {GUI} from 'dat.gui';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import holographicVertexShader from './shaders/holographic/vertex.glsl';
 import holographicFragmentShader from './shaders/holographic/fragment.glsl';
 
@@ -39,6 +39,27 @@ const earthTexture = loader.load(earhText);
 
 const camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 100 );
 const controls = new OrbitControls(camera, renderer.domElement);
+
+const modelLoader = new GLTFLoader();
+const sectorsMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }); // Transparent material
+
+modelLoader.load('./models/Sectors.glb', function (sectors){
+  sectors.scene.traverse((node) => {
+    if (node.isMesh) {
+      node.material = sectorsMaterial;
+
+      // Create an edges geometry for the white border
+      const edges = new THREE.EdgesGeometry(node.geometry);
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
+      node.add(line);
+    }
+  });
+  sectors.scene.position.z = 0.1;
+  sectors.scene.rotation.x = Math.PI * 1.5;
+  sectors.scene.scale.set(20, 20, 20);
+  scene.add(sectors.scene);
+  console.log(sectors.scene);
+})
 
 controls.enableRotate = false;
 controls.minDistance = 5;
@@ -76,6 +97,7 @@ material.opacity = 0.9;
 material.shininess = 0;
 
 const circle = new THREE.Mesh( geometry, holoMapShaderMaterial ); 
+circle.position.z = -0.1;
 circle.rotation.x = Math.PI;
 scene.add( circle );
 createGUIPosRotFolder(circle, 'HoloProj');
@@ -128,7 +150,7 @@ for (let i = 0; i < sectorsPerGroup.length; i+=2) {
         const sectorAngle = 2 * Math.PI / sectorsInGroup;
         const sector = createSector(sectorAngle, innerRadius, outerRadius);
         sector.rotation.z = j * sectorAngle;
-        scene.add(sector);
+        // scene.add(sector);
         sector.position.z = -0.1;
         sectorIndex++;
 
