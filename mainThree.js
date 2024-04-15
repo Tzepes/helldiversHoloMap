@@ -10,13 +10,12 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import holographicVertexShader from './shaders/holographic/vertex.glsl';
 import holographicFragmentShader from './shaders/holographic/fragment.glsl';
 
+import fetchPlanets from './apis/planetsRequest.js';
+import planetsPositions from './utils/planetsPositions.js';
+
 /*TODO: 
   - create sectors for the holo map (there seem to be 10 circle radiuses from the center to the edge of the holo map)
     * liberation info of sector and number of players
-    * actual planet location from ingame
-  - create mouse controls like ingame
-    * first a zoom in is required for planet selection
-    * the mouse moves a circle around with wich you can select planets
   - create a holographic shader material for the holo map
     * the hologram has a slight beehive pattern
   - create UI Hover effect for the planets
@@ -27,6 +26,9 @@ import holographicFragmentShader from './shaders/holographic/fragment.glsl';
     * close up to planet click
     * zoom out to the holo map
   - ingame textures of planets
+   - create mouse controls like ingame
+    * first a zoom in is required for planet selection
+    * the mouse moves a circle around with wich you can select planets
 */
 
 const width = window.innerWidth, height = window.innerHeight;
@@ -56,6 +58,8 @@ modelLoader.load('./models/Sectors.glb', function (sectors){
   });
   sectors.scene.position.z = 0.1;
   sectors.scene.rotation.x = Math.PI * 1.5;
+  // sectors.scene.rotation.y -= 2 * (Math.PI / 180); // rotate sector group 5 degrees to the left
+  sectors.scene.rotation.y = Math.PI;
   sectors.scene.scale.set(20, 20, 20);
   scene.add(sectors.scene);
   console.log(sectors.scene);
@@ -96,11 +100,11 @@ material.transparent = true;
 material.opacity = 0.9;
 material.shininess = 0;
 
-const circle = new THREE.Mesh( geometry, holoMapShaderMaterial ); 
-circle.position.z = -0.1;
-circle.rotation.x = Math.PI;
-scene.add( circle );
-createGUIPosRotFolder(circle, 'HoloProj');
+const hologram = new THREE.Mesh( geometry, holoMapShaderMaterial ); 
+hologram.position.z = -0.1;
+hologram.rotation.x = Math.PI;
+scene.add( hologram );
+createGUIPosRotFolder(hologram, 'HoloProj');
 
 const sphereGeometry = new THREE.SphereGeometry( 1, 32, 32 );
 const sphereMaterial = new THREE.MeshBasicMaterial( { map: earthTexture } );
@@ -109,33 +113,26 @@ scene.add( sphere );
 sphere.position.z = -1;
 
 // Calculate the golden angle
-const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-const circleRadius = 20;
+const hologramRadius = 20;
 const planetGroup = new THREE.Group();
 
-const colors = ['#C8E0F3', '#706567', '#8A8A8A', '#9A97FF', '#5B59B0', '#561315', '#D19C63', '#84CC4B', '#FF8733', '#90FF33']
-
-// Create the spheres
-for (let i = 0; i < 253; i++) {
-  const colorIndex = Math.floor(Math.random() * colors.length);
+// Create the planets
+planetsPositions.forEach((planetPosition, i) => {
 
   const planetGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-  const planetMaterial = new THREE.MeshBasicMaterial({ color: colors[colorIndex] });
+  const planetMaterial = new THREE.MeshBasicMaterial({ color: '#FFFFFF' });
   const planet = new THREE.Mesh(planetGeometry, planetMaterial);
 
-  // Calculate the planet's position using the sunflower seed arrangement
-  const radius = Math.sqrt(i / 253) * circleRadius;
-  const angle = i * goldenAngle;
-
-  // Convert polar coordinates to Cartesian coordinates
-  planet.position.x = radius * Math.cos(angle);
-  planet.position.y = radius * Math.sin(angle);
+  // Use the planet's position from the API
+  planet.position.x = planetPosition.position.x * hologramRadius + 0.15;
+  planet.position.y = planetPosition.position.y * hologramRadius + 0.15; // the planet positiosn are inverted, just like the sectors where when first placed
 
   planetGroup.add(planet);
-}
+});
 
 scene.add(planetGroup);
 planetGroup.position.z = -0.1;
+planetGroup.rotation.y = Math.PI;
 
 const sectorRadiuses = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // The radiuses of the sectors
 const sectorsPerGroup = [6, 8, 10, 12, 14, 18]; // Increase the number of sectors in the outer groups
