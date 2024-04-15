@@ -65,8 +65,12 @@ modelLoader.load('./models/Sectors.glb', function (sectors){
   console.log(sectors.scene);
 })
 
-controls.enableRotate = false;
+
 controls.minDistance = 5;
+controls.maxDistance = 50;
+
+controls.minPolarAngle = Math.PI / 2;
+
 camera.position.y = -15;
 camera.position.z = -25.5;
 
@@ -119,7 +123,7 @@ const planetGroup = new THREE.Group();
 // Create the planets
 planetsPositions.forEach((planetPosition, i) => {
 
-  const planetGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+  const planetGeometry = new THREE.SphereGeometry(0.15, 32, 32);
   const planetMaterial = new THREE.MeshBasicMaterial({ color: '#FFFFFF' });
   const planet = new THREE.Mesh(planetGeometry, planetMaterial);
 
@@ -133,33 +137,6 @@ planetsPositions.forEach((planetPosition, i) => {
 scene.add(planetGroup);
 planetGroup.position.z = -0.1;
 planetGroup.rotation.y = Math.PI;
-
-const sectorRadiuses = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // The radiuses of the sectors
-const sectorsPerGroup = [6, 8, 10, 12, 14, 18]; // Increase the number of sectors in the outer groups
-let sectorIndex = 0; // The current sector index
-
-for (let i = 0; i < sectorsPerGroup.length; i+=2) {
-    const innerRadius = sectorRadiuses[i];
-    const outerRadius = sectorRadiuses[i + 6] || 20; // Default to 20 if there is no next radius
-    const sectorsInGroup = sectorsPerGroup[i];
-
-    for (let j = 0; j < sectorsInGroup; j++) {
-        const sectorAngle = 2 * Math.PI / sectorsInGroup;
-        const sector = createSector(sectorAngle, innerRadius, outerRadius);
-        sector.rotation.z = j * sectorAngle;
-        // scene.add(sector);
-        sector.position.z = -0.1;
-        sectorIndex++;
-
-        if (sectorIndex >= 53) {
-            break;
-        }
-    }
-
-    if (sectorIndex >= 53) {
-        break;
-    }
-}
 
 renderer.setAnimationLoop( animation );
 document.body.appendChild( renderer.domElement );
