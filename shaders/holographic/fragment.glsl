@@ -9,7 +9,7 @@ void main() {
     vec3 normal = normalize(vNormal);
 
     // Stripes
-    float stripes = mod((vPosition.y - uTime * 0.001) * 5.0, 1.0);
+    float stripes = mod((vPosition.z - uTime * 0.001) * 5.0, 1.0);
     stripes = pow(stripes, 2.0);
 
     // Fresnel

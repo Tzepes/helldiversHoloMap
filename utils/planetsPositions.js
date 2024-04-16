@@ -1,12 +1,13 @@
 const planetsPositions = [
-    {
-      "index": 0,
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "sector": 0
-    },
+  //planet of index 0 is Super Earth
+    // {
+    //   "index": 0,
+    //   "position": {
+    //     "x": 0,
+    //     "y": 0
+    //   },
+    //   "sector": 0
+    // },
     {
       "index": 1,
       "position": {

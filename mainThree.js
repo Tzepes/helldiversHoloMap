@@ -35,15 +35,24 @@ const width = window.innerWidth, height = window.innerHeight;
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 renderer.setSize( width, height );
 
+const scene = new THREE.Scene();
+
 const loader = new THREE.TextureLoader();
 const holoMapTexture = loader.load(spaceHoloText);
 const earthTexture = loader.load(earhText);
 
-const camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 100 );
+const camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 1000 );
 const controls = new OrbitControls(camera, renderer.domElement);
+
+camera.position.y = 45;
+camera.position.z = -65.5;
+
+createGUIPosRotFolder(camera, 'Camera');
 
 const modelLoader = new GLTFLoader();
 const sectorsMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }); // Transparent material
+
+const hologramRadius = 50;
 
 modelLoader.load('./models/Sectors.glb', function (sectors){
   sectors.scene.traverse((node) => {
@@ -56,27 +65,14 @@ modelLoader.load('./models/Sectors.glb', function (sectors){
       node.add(line);
     }
   });
-  sectors.scene.position.z = 0.1;
-  sectors.scene.rotation.x = Math.PI * 1.5;
+  sectors.scene.position.y = -0.1;
+  // sectors.scene.rotation.x = Math.PI * 1.5;
   // sectors.scene.rotation.y -= 2 * (Math.PI / 180); // rotate sector group 5 degrees to the left
   sectors.scene.rotation.y = Math.PI;
-  sectors.scene.scale.set(20, 20, 20);
+  sectors.scene.scale.set(hologramRadius, hologramRadius, hologramRadius);
   scene.add(sectors.scene);
   console.log(sectors.scene);
 })
-
-
-controls.minDistance = 5;
-controls.maxDistance = 50;
-
-controls.minPolarAngle = Math.PI / 2;
-
-camera.position.y = -15;
-camera.position.z = -25.5;
-
-createGUIPosRotFolder(camera, 'Camera');
-
-const scene = new THREE.Scene();
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -86,7 +82,7 @@ const lightHelper = new THREE.PointLightHelper(light);
 light.position.set(0, 0, -5);
 scene.add(light);
 
-const geometry = new THREE.CircleGeometry( 20, 50 ); 
+const hologramGeometry = new THREE.CircleGeometry( hologramRadius, 50 ); 
 const material = new THREE.MeshPhongMaterial( { color: 0x0000ff, side: THREE.DoubleSide,map: holoMapTexture} );
 
 const holoMapShaderMaterial = new THREE.ShaderMaterial({
@@ -104,38 +100,40 @@ material.transparent = true;
 material.opacity = 0.9;
 material.shininess = 0;
 
-const hologram = new THREE.Mesh( geometry, holoMapShaderMaterial ); 
-hologram.position.z = -0.1;
-hologram.rotation.x = Math.PI;
+const hologram = new THREE.Mesh( hologramGeometry, holoMapShaderMaterial ); 
+
+hologram.rotation.x = -Math.PI / 2;
+// hologram.rotation.x += 90 * (Math.PI / 180);
+// hologram.rotation.y = Math.PI;
 scene.add( hologram );
 createGUIPosRotFolder(hologram, 'HoloProj');
 
-const sphereGeometry = new THREE.SphereGeometry( 1, 32, 32 );
-const sphereMaterial = new THREE.MeshBasicMaterial( { map: earthTexture } );
-const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-scene.add( sphere );
-sphere.position.z = -1;
+const superEarthGeometry = new THREE.SphereGeometry( 2, 32, 32 );
+const superEarthMaterial = new THREE.MeshBasicMaterial( { map: earthTexture } );
+const superEarth = new THREE.Mesh( superEarthGeometry, superEarthMaterial );
+scene.add( superEarth );
+superEarth.position.y = 1;
 
 // Calculate the golden angle
-const hologramRadius = 20;
 const planetGroup = new THREE.Group();
-
+const planetSizes = 0.5;
 // Create the planets
 planetsPositions.forEach((planetPosition, i) => {
-
-  const planetGeometry = new THREE.SphereGeometry(0.15, 32, 32);
+  const planetGeometry = new THREE.SphereGeometry(planetSizes, 32, 32);
   const planetMaterial = new THREE.MeshBasicMaterial({ color: '#FFFFFF' });
   const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-
+  
   // Use the planet's position from the API
-  planet.position.x = planetPosition.position.x * hologramRadius + 0.15;
-  planet.position.y = planetPosition.position.y * hologramRadius + 0.15; // the planet positiosn are inverted, just like the sectors where when first placed
-
+  planet.position.x = planetPosition.position.x * hologramRadius + 0.1;
+  planet.position.y = planetPosition.position.y * hologramRadius + 0.14; 
+  
   planetGroup.add(planet);
 });
 
 scene.add(planetGroup);
 planetGroup.position.z = -0.1;
+planetGroup.position.y = 0.2;
+planetGroup.rotation.x = Math.PI / 2;
 planetGroup.rotation.y = Math.PI;
 
 renderer.setAnimationLoop( animation );
